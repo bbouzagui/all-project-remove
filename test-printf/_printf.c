@@ -1,53 +1,68 @@
-#include <stdio.h>
-#include <stdarg.h>
-#include <unistd.h>
+#include "main.h"
 
-int _putchar(char c)
-{
-    return (write(1, &c, 1));
-}
-
+/**
+ * _printf - Custom printf function
+ * @format: Format string
+ *
+ * Return: Number of characters printed (excluding null byte)
+ */
 int _printf(const char *format, ...)
 {
-    int count = 0;
     va_list args;
+    int count = 0;
+    const char *ptr;
+    char *str;
 
     va_start(args, format);
 
-    while (*format!= '\0')
+    for (ptr = format; *ptr != '\0'; ++ptr)
     {
-        if (*format == '%')
+        if (*ptr == '%')
         {
-            format++;
-            if (*format == 'c')
+            ++ptr;
+            switch (*ptr)
             {
-                char c = va_arg(args, int);
-                _putchar(c);
-                count++;
-            }
-            else if (*format == 's')
-            {
-                char *s = va_arg(args, char *);
-                for (; *s!= '\0'; s++)
-                {
-                    _putchar(*s);
-                    count++;
-                }
-            }
-            else if (*format == '%')
-            {
-                _putchar('%');
-                count++;
+            case 'c':
+                count += write(1, (char)va_arg(args, int), 1);
+                break;
+            case 's':
+                str = va_arg(args, char *);
+                if (str == NULL)
+                    str = "(null)";
+                count += write(1, str, _strlen(str));
+                break;
+            case '%':
+                count += write(1, "%", 1);
+                break;
+            default:
+                write(1, "Unknown format specifier\n", 24);
+                va_end(args);
+                return (-1);
             }
         }
         else
         {
-            _putchar(*format);
-            count++;
+            count += write(1, ptr, 1);
         }
-        format++;
     }
-    va_end(args);
 
+    va_end(args);
     return (count);
+}
+
+/**
+ * _strlen - Calculate the length of a string
+ * @s: Input string
+ *
+ * Return: Length of the string
+ */
+int _strlen(const char *s)
+{
+    int len = 0;
+    while (*s != '\0')
+    {
+        len++;
+        s++;
+    }
+    return (len);
 }
